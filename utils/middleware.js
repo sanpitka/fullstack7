@@ -1,54 +1,60 @@
-const logger = require('./logger')
-const jwt = require('jsonwebtoken')
-const User = require('../models/user')
+const logger = require("./logger");
+const jwt = require("jsonwebtoken");
+const User = require("../models/user");
 
 const requestLogger = (request, response, next) => {
-  logger.info('Method:', request.method)
-  logger.info('Path:  ', request.path)
-  if (request.method === 'POST' || request.method === 'PUT' || request.method === 'PATCH') {
-    logger.info('Body:  ', request.body)
+  logger.info("Method:", request.method);
+  logger.info("Path:  ", request.path);
+  if (
+    request.method === "POST" ||
+    request.method === "PUT" ||
+    request.method === "PATCH"
+  ) {
+    logger.info("Body:  ", request.body);
   }
-  logger.info('---')
-  next()
-}
+  logger.info("---");
+  next();
+};
 
 const userExtractor = async (request, response, next) => {
-  const authorization = request.get('authorization')
-  if (authorization && authorization.startsWith('Bearer ')) {
-    const token = authorization.replace('Bearer ', '')
-    const decodedToken = jwt.verify(token, process.env.SECRET)
+  const authorization = request.get("authorization");
+  if (authorization && authorization.startsWith("Bearer ")) {
+    const token = authorization.replace("Bearer ", "");
+    const decodedToken = jwt.verify(token, process.env.SECRET);
     if (decodedToken.id) {
-      const user = await User.findById(decodedToken.id)
-      request.user = user
+      const user = await User.findById(decodedToken.id);
+      request.user = user;
     }
   }
-  next()
-}
+  next();
+};
 
 const unknownEndpoint = (request, response) => {
-  response.status(404).send({ error: 'unknown endpoint' })
-}
+  response.status(404).send({ error: "unknown endpoint" });
+};
 
 const errorHandler = (error, request, response, next) => {
-  logger.error(error.message)
+  logger.error(error.message);
 
-  if (error.name === 'CastError') {
-    return response.status(400).send({ error: 'malformatted id' })
-  } else if (error.name === 'ValidationError') {
-    return response.status(400).json({ error: error.message })
-  }  else if (error.name === 'MongoServerError' && error.message.includes('E11000 duplicate key error')) {
-    return response.status(400).json({ error: 'username already exists' })
-  } else if (error.name ===  'JsonWebTokenError') {
-    return response.status(401).json({ error: 'token missing or invalid' })
+  if (error.name === "CastError") {
+    return response.status(400).send({ error: "malformatted id" });
+  } else if (error.name === "ValidationError") {
+    return response.status(400).json({ error: error.message });
+  } else if (
+    error.name === "MongoServerError" &&
+    error.message.includes("E11000 duplicate key error")
+  ) {
+    return response.status(400).json({ error: "username already exists" });
+  } else if (error.name === "JsonWebTokenError") {
+    return response.status(401).json({ error: "token missing or invalid" });
   }
 
-  next(error)
-}
-
+  next(error);
+};
 
 module.exports = {
   requestLogger,
   unknownEndpoint,
   errorHandler,
-  userExtractor
-}
+  userExtractor,
+};

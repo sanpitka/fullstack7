@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from "react";
+import { useDispatch } from 'react-redux';
+import { setNotification } from './reducers/notificationReducer';
 import Blog from "./components/Blog";
 import BlogForm from "./components/BlogForm";
 import blogService from "./services/blogs";
@@ -11,8 +13,7 @@ import "./index.css";
 const App = () => {
   const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState(null);
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [notificationMessage, setNotificationMessage] = useState(null);
+  const dispatch = useDispatch();
 
   const blogFormRef = useRef();
 
@@ -43,11 +44,10 @@ const App = () => {
       blogService.setToken(user.token);
       setUser(user);
     } catch (error) {
-      console.error(error);
-      setErrorMessage("Wrong username or password");
-      setTimeout(() => {
-        setErrorMessage(null);
-      }, 5000);
+      dispatch(setNotification({
+        message: "Wrong username or password",
+        type: "error"
+      }, 5));
     }
   };
 
@@ -67,23 +67,18 @@ const App = () => {
     try {
       const createdBlog = await blogService.create(blogObject);
       setBlogs(blogs.concat(createdBlog));
-      setNotificationMessage(
-        `A new blog '${blogObject.title}' by ${blogObject.author} added`,
-      );
-
-      setTimeout(() => {
-        setNotificationMessage(null);
-      }, 5000);
-
-      blogFormRef.current.toggleVisibility();
+      dispatch(setNotification({
+        message: `A new blog '${blogObject.title}' by ${blogObject.author} added`,
+        type: "notification"
+      }, 5));
     } catch (error) {
       console.error(error);
       if (error.response?.status === 400) {
-        setErrorMessage("Remember to fill all the fields");
+        dispatch(setNotification({
+          message: "Remember to fill all the fields",
+          type: "error"
+        }, 5));
       }
-      setTimeout(() => {
-        setErrorMessage(null);
-      }, 5000);
     }
   };
 
@@ -92,11 +87,10 @@ const App = () => {
       const returnedBlog = await blogService.update(id, updatedBlog);
       setBlogs(blogs.map((blog) => (blog.id !== id ? blog : returnedBlog)));
     } catch (error) {
-      console.error(error);
-      setErrorMessage("Error updating blog");
-      setTimeout(() => {
-        setErrorMessage(null);
-      }, 5000);
+      dispatch(setNotification({
+        message: "Error updating blog",
+        type: "error"
+      }, 5));
     }
   };
 
@@ -104,24 +98,22 @@ const App = () => {
     try {
       await blogService.remove(id);
       setBlogs(blogs.filter((blog) => blog.id !== id));
-      setNotificationMessage("Blog removed successfully");
-      setTimeout(() => {
-        setNotificationMessage(null);
-      }, 5000);
+      dispatch(setNotification({
+        message: "Blog removed successfully",
+        type: "notification"
+      }, 5));
     } catch (error) {
-      console.error(error);
-      setErrorMessage("Error removing blog");
-      setTimeout(() => {
-        setErrorMessage(null);
-      }, 5000);
+      dispatch(setNotification({
+        message: "Error removing blog",
+        type: "error"
+      }, 5));
     }
   };
 
   return (
     <div>
       <h2>blogs</h2>
-      <Notification message={errorMessage} type="error" />
-      <Notification message={notificationMessage} type="notification" />
+      <Notification />
       {!user && loginForm()}
       {user && (
         <div>

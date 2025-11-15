@@ -1,34 +1,35 @@
-import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { createBlog } from "../reducers/blogReducer";
+import { setNotification } from "../reducers/notificationReducer";
 
-const BlogForm = ({ addBlog }) => {
-  const [title, setTitle] = useState("");
-  const [author, setAuthor] = useState("");
-  const [url, setUrl] = useState("");
+const BlogForm = () => {
+  const dispatch = useDispatch();
 
-  const handleSubmit = (event) => {
+  const onCreate = (event) => {
     event.preventDefault();
-    addBlog({
-      title: title,
-      author: author,
-      url: url,
-    });
-    setTitle("");
-    setAuthor("");
-    setUrl("");
-  };
+    const title = event.target.title.value;
+    const author = event.target.author.value;
+    const url = event.target.url.value;
 
+    dispatch(createBlog({ title, author, url }));
+    dispatch(setNotification({
+      message: `A new blog '${title}' by ${author} added`,
+      type: 'notification'
+    }, 5));
+
+    event.target.reset();
+  }
+  
   return (
     <div>
       <h2>add new blog</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={onCreate}>
         <div>
           <label>
             title:
             <input
               type="text"
-              value={title}
-              name="Title"
-              onChange={({ target }) => setTitle(target.value)}
+              name="title"
             />
           </label>
         </div>
@@ -37,9 +38,7 @@ const BlogForm = ({ addBlog }) => {
             author:
             <input
               type="text"
-              value={author}
-              name="Author"
-              onChange={({ target }) => setAuthor(target.value)}
+              name="author"
             />
           </label>
         </div>
@@ -48,9 +47,7 @@ const BlogForm = ({ addBlog }) => {
             url:
             <input
               type="text"
-              value={url}
-              name="Url"
-              onChange={({ target }) => setUrl(target.value)}
+              name="url"
             />
           </label>
         </div>

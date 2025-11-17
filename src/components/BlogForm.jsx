@@ -1,4 +1,4 @@
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { createBlog } from "../reducers/blogReducer";
 import { setNotification } from "../reducers/notificationReducer";
 import { useRef } from "react";
@@ -7,6 +7,7 @@ import Togglable from "./Togglable";
 const BlogForm = () => {
   const dispatch = useDispatch();
   const blogFormRef = useRef();
+  const user = useSelector((state) => state.user);
 
   const onCreate = (event) => {
     event.preventDefault();
@@ -28,6 +29,10 @@ const BlogForm = () => {
     event.target.reset();
     blogFormRef.current.toggleVisibility();
   };
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <Togglable buttonLabel="add new blog" ref={blogFormRef}>

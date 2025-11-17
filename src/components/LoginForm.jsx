@@ -28,10 +28,8 @@ const LoginForm = () => {
   if (user) {
     return (
       <div>
-        <p>
-          {user.name} logged in
-          <button onClick={logout}>logout</button>
-        </p>
+        <p>{user.name} logged in</p>
+        <button onClick={logout}>logout</button>
       </div>
     );
   }

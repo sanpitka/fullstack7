@@ -1,19 +1,24 @@
-import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser, logoutUser } from "../reducers/userReducer";
+import { useField } from "../hooks";
 import Togglable from "./Togglable";
 
 const LoginForm = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const username = useField("text");
+  const password = useField("password");
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user);
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    dispatch(loginUser({ username, password }));
-    setUsername("");
-    setPassword("");
+    dispatch(
+      loginUser({
+        username: username.input.value,
+        password: password.input.value,
+      }),
+    );
+    username.resetField();
+    password.resetField();
   };
 
   const logout = () => {
@@ -38,18 +43,11 @@ const LoginForm = () => {
         <form onSubmit={handleSubmit}>
           <div>
             username
-            <input
-              value={username}
-              onChange={({ target }) => setUsername(target.value)}
-            />
+            <input {...username.input} />
           </div>
           <div>
             password
-            <input
-              type="password"
-              value={password}
-              onChange={({ target }) => setPassword(target.value)}
-            />
+            <input {...password.input} />
           </div>
           <button type="submit">login</button>
         </form>

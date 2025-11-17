@@ -2,6 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { createBlog } from "../reducers/blogReducer";
 import { setNotification } from "../reducers/notificationReducer";
 import { useRef } from "react";
+import { useField } from "../hooks";
 import Togglable from "./Togglable";
 
 const BlogForm = () => {
@@ -9,24 +10,34 @@ const BlogForm = () => {
   const blogFormRef = useRef();
   const user = useSelector((state) => state.user);
 
+  const title = useField("text");
+  const author = useField("text");
+  const url = useField("text");
+
   const onCreate = (event) => {
     event.preventDefault();
-    const title = event.target.title.value;
-    const author = event.target.author.value;
-    const url = event.target.url.value;
+    dispatch(
+      createBlog({
+        title: title.input.value,
+        author: author.input.value,
+        url: url.input.value,
+      }),
+    );
 
-    dispatch(createBlog({ title, author, url }));
     dispatch(
       setNotification(
         {
-          message: `A new blog '${title}' by ${author} added`,
+          message: `A new blog '${title.input.value}' by ${author.input.value} added`,
           type: "notification",
         },
         5,
       ),
     );
 
-    event.target.reset();
+    title.resetField();
+    author.resetField();
+    url.resetField();
+
     blogFormRef.current.toggleVisibility();
   };
 
@@ -42,19 +53,19 @@ const BlogForm = () => {
           <div>
             <label>
               title:
-              <input type="text" name="title" />
+              <input {...title.input} />
             </label>
           </div>
           <div>
             <label>
               author:
-              <input type="text" name="author" />
+              <input {...author.input} />
             </label>
           </div>
           <div>
             <label>
               url:
-              <input type="text" name="url" />
+              <input {...url.input} />
             </label>
           </div>
           <button type="submit">create</button>

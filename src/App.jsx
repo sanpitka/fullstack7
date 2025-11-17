@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { useDispatch } from 'react-redux';
-import { setNotification } from './reducers/notificationReducer';
-import Blog from "./components/Blog";
+import { useDispatch } from "react-redux";
+import { setNotification } from "./reducers/notificationReducer";
+import BlogList from "./components/BlogList";
 import BlogForm from "./components/BlogForm";
 import blogService from "./services/blogs";
 import LoginForm from "./components/LoginForm";
@@ -9,17 +9,18 @@ import loginService from "./services/login";
 import Togglable from "./components/Togglable";
 import Notification from "./components/Notification";
 import "./index.css";
+import { initializeBlogs } from "./reducers/blogReducer";
 
 const App = () => {
-  const [blogs, setBlogs] = useState([]);
-  const [user, setUser] = useState(null);
   const dispatch = useDispatch();
+
+  const [user, setUser] = useState(null);
 
   const blogFormRef = useRef();
 
   useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs));
-  }, []);
+    dispatch(initializeBlogs());
+  }, [dispatch]);
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem("loggedUser");
@@ -44,10 +45,15 @@ const App = () => {
       blogService.setToken(user.token);
       setUser(user);
     } catch (error) {
-      dispatch(setNotification({
-        message: "Wrong username or password",
-        type: "error"
-      }, 5));
+      dispatch(
+        setNotification(
+          {
+            message: "Wrong username or password",
+            type: "error",
+          },
+          5,
+        ),
+      );
     }
   };
 
@@ -55,59 +61,6 @@ const App = () => {
     window.localStorage.removeItem("loggedUser");
     blogService.setToken(null);
     setUser(null);
-  };
-
-  const blogForm = () => (
-    <Togglable buttonLabel="add new blog" ref={blogFormRef}>
-      <BlogForm addBlog={addBlog} />
-    </Togglable>
-  );
-
-  const addBlog = async (blogObject) => {
-    try {
-      const createdBlog = await blogService.create(blogObject);
-      setBlogs(blogs.concat(createdBlog));
-      dispatch(setNotification({
-        message: `A new blog '${blogObject.title}' by ${blogObject.author} added`,
-        type: "notification"
-      }, 5));
-    } catch (error) {
-      console.error(error);
-      if (error.response?.status === 400) {
-        dispatch(setNotification({
-          message: "Remember to fill all the fields",
-          type: "error"
-        }, 5));
-      }
-    }
-  };
-
-  const updateBlog = async (id, updatedBlog) => {
-    try {
-      const returnedBlog = await blogService.update(id, updatedBlog);
-      setBlogs(blogs.map((blog) => (blog.id !== id ? blog : returnedBlog)));
-    } catch (error) {
-      dispatch(setNotification({
-        message: "Error updating blog",
-        type: "error"
-      }, 5));
-    }
-  };
-
-  const removeBlog = async (id) => {
-    try {
-      await blogService.remove(id);
-      setBlogs(blogs.filter((blog) => blog.id !== id));
-      dispatch(setNotification({
-        message: "Blog removed successfully",
-        type: "notification"
-      }, 5));
-    } catch (error) {
-      dispatch(setNotification({
-        message: "Error removing blog",
-        type: "error"
-      }, 5));
-    }
   };
 
   return (
@@ -120,22 +73,10 @@ const App = () => {
           <p>
             {user.name} logged in <button onClick={handleLogout}>logout</button>
           </p>
-          {blogForm()}
+          <BlogForm />
         </div>
       )}
-
-      <div style={{ marginTop: "20px" }}>
-        {blogs
-          .sort((a, b) => b.likes - a.likes)
-          .map((blog) => (
-            <Blog
-              key={blog.id}
-              blog={blog}
-              updateBlog={updateBlog}
-              removeBlog={removeBlog}
-            />
-          ))}
-      </div>
+      <BlogList />
     </div>
   );
 };

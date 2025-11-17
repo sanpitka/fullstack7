@@ -16,14 +16,7 @@ const Blog = ({ blog, updateBlog, removeBlog }) => {
   };
 
   const handleLike = () => {
-    const updatedBlog = {
-      user: blog.user.id, // Handle different user field formats
-      likes: blog.likes + 1,
-      author: blog.author,
-      title: blog.title,
-      url: blog.url,
-    };
-    updateBlog(blog.id, updatedBlog);
+    updateBlog(blog.id, blog);
   };
 
   const handleRemove = () => {

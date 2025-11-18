@@ -24,6 +24,9 @@ const blogSlice = createSlice({
   },
 });
 
+export const { setBlogs, appendBlog, updateBlog, removeBlog } =
+  blogSlice.actions;
+
 export const initializeBlogs = () => {
   return async (dispatch) => {
     const blogs = await blogService.getAll();
@@ -56,6 +59,4 @@ export const deleteBlog = (id) => {
   };
 };
 
-export const { setBlogs, appendBlog, updateBlog, removeBlog } =
-  blogSlice.actions;
 export default blogSlice.reducer;

@@ -4,6 +4,7 @@ import { Routes, Route, Link, useMatch } from "react-router-dom";
 import { initializeUser } from "./reducers/userReducer";
 import { initializeBlogs } from "./reducers/blogReducer";
 import { initializeUsers } from "./reducers/usersReducer";
+import BlogView from "./components/BlogView";
 import BlogList from "./components/BlogList";
 import BlogForm from "./components/BlogForm";
 import LoginForm from "./components/LoginForm";
@@ -35,6 +36,7 @@ const App = () => {
       <Routes>
         <Route path="/users/:id" element={<User />} />
         <Route path="/users" element={<Users />} />
+        <Route path="/blogs/:id" element={<BlogView />} />
         <Route path="/" element={<BlogList />} />
       </Routes>
     </div>

@@ -1,13 +1,24 @@
-import { useParams } from "react-router-dom";
+import { useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { likeBlog, deleteBlog } from "../reducers/blogReducer";
+import { initializeComments } from "../reducers/commentReducer";
+import CommentForm from "./CommentForm";
 
 const BlogView = () => {
   const id = useParams().id;
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const blog = useSelector((state) =>
     state.blogs.find((blog) => blog.id === id),
   );
-  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user);
+  const comments = useSelector((state) => state.comments);
+
+  useEffect(() => {
+    dispatch(initializeComments(id));
+  }, [dispatch, id]);
 
   if (!blog) {
     return null;
@@ -23,13 +34,20 @@ const BlogView = () => {
     );
     if (confirmed) {
       dispatch(deleteBlog(blog.id));
+      dispatch(
+        setNotification(
+          {
+            message: `Blog '${blog.title}' removed`,
+            type: "notification",
+          },
+          5,
+        ),
+      );
+      navigate("/");
     }
   };
 
-  const loggedUser = window.localStorage.getItem("loggedUser");
-  const isOwner = loggedUser
-    ? blog.user.username === JSON.parse(loggedUser).username
-    : false;
+  const isOwner = user && blog.user.username === user.username;
 
   return (
     <div>
@@ -53,6 +71,15 @@ const BlogView = () => {
           </button>
         </div>
       )}
+
+      <h3>comments</h3>
+      <CommentForm />
+      {comments.length === 0 && <p>No comments yet</p>}
+      <ul>
+        {comments.map((comment, index) => (
+          <li key={index}>{comment.content}</li>
+        ))}
+      </ul>
     </div>
   );
 };

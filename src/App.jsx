@@ -9,7 +9,6 @@ import BlogView from "./components/BlogView";
 import BlogList from "./components/BlogList";
 import BlogForm from "./components/BlogForm";
 import LoginForm from "./components/LoginForm";
-import CommentForm from "./components/CommentForm";
 import Notification from "./components/Notification";
 import Users from "./components/Users";
 import User from "./components/User";
@@ -28,17 +27,18 @@ const App = () => {
   }, [dispatch]);
 
   return (
-    <div>
+    <div className="container">
+      {}
       <Navbar />
       <Notification />
       {!user && showLoginForm && <LoginForm />}
+      {matchBlogs && <h2>Blogs</h2>}
       {matchBlogs && <BlogForm />}
       <Routes>
         <Route path="/users/:id" element={<User />} />
         <Route path="/users" element={<Users />} />
         <Route path="/blogs/:id" element={<BlogView />} />
         <Route path="/" element={<BlogList />} />
-        <Route path="/blogs/:id/comments" element={<CommentForm />} />
       </Routes>
     </div>
   );

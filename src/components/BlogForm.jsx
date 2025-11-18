@@ -16,6 +16,19 @@ const BlogForm = () => {
 
   const onCreate = (event) => {
     event.preventDefault();
+
+    if (!title.input.value || !author.input.value || !url.input.value) {
+      dispatch(
+        setNotification(
+          {
+            message: "All fields are required",
+            type: "error",
+          },
+          5,
+        ),
+      );
+      return;
+    }
     dispatch(
       createBlog({
         title: title.input.value,
@@ -33,11 +46,17 @@ const BlogForm = () => {
         5,
       ),
     );
-
     title.resetField();
     author.resetField();
     url.resetField();
 
+    blogFormRef.current.toggleVisibility();
+  };
+
+  const handleCancel = () => {
+    title.resetField();
+    author.resetField();
+    url.resetField();
     blogFormRef.current.toggleVisibility();
   };
 
@@ -46,7 +65,7 @@ const BlogForm = () => {
   }
 
   return (
-    <Togglable buttonLabel="add new blog" ref={blogFormRef}>
+    <Togglable buttonLabel="add new blog" ref={blogFormRef} hideCancel={true}>
       <div>
         <h2>add new blog</h2>
         <form onSubmit={onCreate}>
@@ -68,6 +87,7 @@ const BlogForm = () => {
               <input {...url.input} />
             </label>
           </div>
+          <button type="button" onClick={handleCancel}>cancel</button>
           <button type="submit">create</button>
         </form>
       </div>

@@ -9,6 +9,7 @@ import BlogForm from "./components/BlogForm";
 import LoginForm from "./components/LoginForm";
 import Notification from "./components/Notification";
 import Users from "./components/Users";
+import User from "./components/User";
 import "./index.css";
 
 const App = () => {
@@ -32,6 +33,7 @@ const App = () => {
       <LoginForm />
       {matchBlogs && <BlogForm />}
       <Routes>
+        <Route path="/users/:id" element={<User />} />
         <Route path="/users" element={<Users />} />
         <Route path="/" element={<BlogList />} />
       </Routes>
